@@ -1,7 +1,4 @@
 #!/usr/bin/python3
-#
-# thanhle Bluetooth keyboard/Mouse emulator DBUS Service
-#
 
 from __future__ import absolute_import, print_function
 from optparse import OptionParser, make_option
@@ -26,7 +23,7 @@ logging.basicConfig(level=logging.DEBUG)
 class BTKbDevice():
     # change these constants
     MY_ADDRESS = "B8:27:EB:87:15:DC"
-    MY_DEV_NAME = "ThanhLe_Keyboard_Mouse"
+    MY_DEV_NAME = "Raspberry_Keyboard"
 
     errorCount = 0
 
@@ -49,13 +46,10 @@ class BTKbDevice():
         logging.info("3. Configuring Device name " + BTKbDevice.MY_DEV_NAME)
         # set the device class to a keybord and set the name
         os.system("hciconfig hci0 up")
-        os.system("hciconfig hci0 -a")
         os.system("hciconfig hci0 class 0x0025C0")
         os.system("hciconfig hci0 name " + BTKbDevice.MY_DEV_NAME)
-        os.system("hciconfig hci0 -a")
         # make the device discoverable
         os.system("hciconfig hci0 piscan")
-        os.system("hciconfig hci0 -a")
 
     def set_bt_class(self):
         logging.info("workaround. Setting bluetooth class again")
@@ -129,11 +123,6 @@ class BTKbService(dbus.service.Object):
 
     def __init__(self):
         logging.info("1. Setting up service")
-        # set up as a dbus service
-#        bus_name = dbus.service.BusName(
-#            "org.thanhle.btkbservice", bus=dbus.SystemBus())
-#        dbus.service.Object.__init__(
-#            self, bus_name, "/org/thanhle/btkbservice")
         # create and setup our device
         self.device = BTKbDevice()
         # start listening for connections
@@ -207,7 +196,6 @@ class BTKbService(dbus.service.Object):
             self.send_key_up()
             time.sleep(0.01)
 
-#    @dbus.service.method('org.thanhle.btkbservice', in_signature='yay')
     def send_keys(self, modifier_byte, keys):
         logging.info("Get send_keys request through dbus")
         logging.info("key msg: %s", keys)
@@ -220,24 +208,9 @@ class BTKbService(dbus.service.Object):
             count += 1
         self.device.send_string(state)
 
-#    @dbus.service.method('org.thanhle.btkbservice', in_signature='yay')
-#    def send_mouse(self, modifier_byte, keys):
-#        state = [0xA1, 2, 0, 0, 0, 0]
-#        count = 2
-#        for key_code in keys:
-#            if(count < 6):
-#                state[count] = int(key_code)
-#            count += 1
-#        self.device.send_string(state)
-
-
 # main routine
 if __name__ == "__main__":
-    # we an only run as root
     try:
-#        if not os.geteuid() == 0:
-#            sys.exit("Only root can run this script")
-
         DBusGMainLoop(set_as_default=True)
         myservice = BTKbService()
         loop = GLib.MainLoop()

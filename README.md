@@ -9,7 +9,7 @@ Runs as a docker container - when connection is dropped, container is restarted 
 Clone this repo and make a few changes to `btk_server.py` file
 
 1. Put your BT MAC address on line `MY_ADDRESS = "B8:27:EB:87:15:DC"` - use `hciconfig hci0 | awk '/BD Address: /{print $3}'` to find it out
-2. Change the BT name on line `MY_DEV_NAME = "ThanhLe_Keyboard_Mouse"`
+2. Change the BT name on line `MY_DEV_NAME = "Raspberry_Keyboard"`
 3. Change the keys you want to send in method `BTKbService.__init__`. Default implementation sends R each 10 seconds and Ctrl+R each 5 minutes
 ```
         # start infinite loop
