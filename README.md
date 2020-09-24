@@ -1,58 +1,75 @@
-[![Build Status](https://travis-ci.com/quangthanh010290/keyboard_mouse_emulate_on_raspberry.svg?branch=master)](https://travis-ci.com/quangthanh010290/keyboard_mouse_emulate_on_raspberry)
+# BLKB - linux bluetooth keyboard emulator
 
-# Make things work first 
+Emulate bluetooth keyboard on your Linux device - accepts bluetooth connection from another device (computer, phone, you name it) and sends predefined keys combination
 
-## Step 1: Setup 
+Runs as a docker container - when connection is dropped, container is restarted and awaits for a new connection.
 
+## Configuration
+
+Clone this repo and make a few changes to `btk_server.py` file
+
+1. Put your BT MAC address on line `MY_ADDRESS = "B8:27:EB:87:15:DC"` - use `hciconfig hci0 | awk '/BD Address: /{print $3}'` to find it out
+2. Change the BT name on line `MY_DEV_NAME = "ThanhLe_Keyboard_Mouse"`
+3. Change the keys you want to send in method `BTKbService.__init__`. Default implementation sends R each 10 seconds and Ctrl+R each 5 minutes
 ```
- sudo ./setup.sh
-```
- 
- 
-## Step 2: Run the Server
-
-```
-sudo ./boot.sh
-```
-
-
-## Step 3.1: Run Keyboard Client (using physical keyboard)
-
-- Need a physical keyboard connected to raspberry PI board
-
-```
-./keyboard/kb_client.py
-```
-
-## Step 3.2: Run Keyboard Client (no need physical keyboard, send string through dbus)
-
-- Dont need a physical keyboard connected to raspberry PI board
-
-```
-./keyboard/send_string.py "hello client, I'm a keyboard"
+        # start infinite loop
+        while True:
+          for x in range(0,30):
+              logging.info("sending R")
+              self.send_string(0, "R")
+              logging.info("sent R")
+              time.sleep(10)
+          logging.info("sending CTRL+R")
+          self.send_string(0x01, "R")
+          logging.info("sent CTRL+R")
+          time.sleep(30)
 ```
 
-## Step 3.3: Run mouse client (using physical mouse)
+## Build
 
-- Need a physical mouse connected to raspberry PI board
 ```
-./mouse/mouse_client.py
-```
-
-## Step 3.4: Run Mouse client (no need physical mouse, string mouse data through dbus)
-
-- Dont need a physical mouse connected to raspberry PI board
-```
-./mouse/mouse_emulate.py 0 10 0 0
+docker build -t blkb:dev .
 ```
 
-# To understand what I'm doing in the background 
-[Make Raspberry Pi3 as an emulator bluetooth keyboard](https://thanhle.me/make-raspberry-pi3-as-an-emulator-bluetooth-keyboard/)
+## Prerequisites to run
 
-## Keyboard setup demo (old version)
+### Bluetooth pairing and trust
 
- [![ScreenShot](https://i0.wp.com/thanhle.me/wp-content/uploads/2020/02/bluetooth_mouse_emulate_on_ra%CC%81pberry.jpg)](https://www.youtube.com/watch?v=fFpIvjS4AXs)
+You need to pair and trust your linux device with target device first.
 
-## Mouse setup demo (ongoing)
-[Emulate Bluetooth mouse with Raspberry Pi](https://thanhle.me/emulate-bluetooth-mouse-with-raspberry-pi/)
-[![ScreenShot](https://i0.wp.com/thanhle.me/wp-content/uploads/2020/08/bluetooth_mouse_emulation_on_raspberry.jpg)](https://www.youtube.com/watch?v=fFpIvjS4AXs)
+Easiest way to do it is using `bluetoothctl` tool - Google for it.
+
+### setcap
+
+Not 100% sure if following steps are required since container is running as privileged
+
+```
+sudo setcap 'cap_net_raw,cap_net_admin+eip' `which hcitool`
+sudo setcap 'cap_net_raw,cap_net_admin+eip' `which hciconfig`
+```
+
+## Running
+
+```
+docker run --name blkb  -v /var/run/dbus:/var/run/dbus --rm --network host --privileged blkb:dev
+```
+
+Of if you're using Docker Compose:
+
+```
+---
+version: "2.1"
+services:
+  blkb:
+    container_name: blkb
+    network_mode: host
+    image: blkb:dev
+    restart: always
+    volumes:
+      - /var/run/dbus:/var/run/dbus
+    privileged: true
+```
+
+## Disclaimer
+
+Based on https://github.com/quangthanh010290/keyboard_mouse_emulate_on_raspberry
