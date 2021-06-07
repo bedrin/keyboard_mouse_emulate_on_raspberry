@@ -128,7 +128,11 @@ class BTKbService(dbus.service.Object):
         # start listening for connections
         self.device.listen()
 
-        self.scancodes = {" ": "KEY_SPACE"}
+        self.scancodes = {
+            " ": "KEY_SPACE",
+            "→": "KEY_RIGHT",
+            "↵": "KEY_ENTER"
+            }
         # the structure for a bt keyboard input report (size is 10 bytes)
         self.interimstate = [
             0xA1,  # this is an input report
@@ -158,13 +162,13 @@ class BTKbService(dbus.service.Object):
               logging.info("sent R")
               time.sleep(10)
         
-          logging.info("sending RIGHT")
-          self.send_string(0, "RIGHT")
-          logging.info("sent RIGHT")
+          logging.info("sending RIGHT (→)")
+          self.send_string(0, "→")
+          logging.info("sent RIGHT (→)")
           time.sleep(1)
-          logging.info("sending ENTER")
-          self.send_string(0, "ENTER")
-          logging.info("sent ENTER")
+          logging.info("sending ENTER (↵)")
+          self.send_string(0, "↵")
+          logging.info("sent ENTER (↵)")
           time.sleep(10)
 
           logging.info("sending CTRL+R")
