@@ -157,9 +157,9 @@ class BTKbService(dbus.service.Object):
         # start infinite loop
         while True:
           for x in range(0,30):
-              logging.info("sending R")
-              self.send_string(0, "R")
-              logging.info("sent R")
+              logging.info("sending CTRL+R")
+              self.send_string(0x01, "R")
+              logging.info("sent CTRL+R")
               time.sleep(10)
         
           logging.info("sending RIGHT (→)")
