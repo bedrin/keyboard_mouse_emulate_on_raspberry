@@ -156,10 +156,10 @@ class BTKbService(dbus.service.Object):
 
         # start infinite loop
         while True:
-          for x in range(0,30):
-              logging.info("sending CTRL+R")
-              self.send_string(0x01, "R")
-              logging.info("sent CTRL+R")
+          for x in range(0,12):
+              logging.info("sending ENTER (↵)")
+              self.send_string(0, "↵")
+              logging.info("sent ENTER (↵)")
               time.sleep(10)
         
           logging.info("sending RIGHT (→)")
@@ -171,14 +171,10 @@ class BTKbService(dbus.service.Object):
           logging.info("sent ENTER (↵)")
           time.sleep(10)
 
-          logging.info("sending CTRL+L")
-          self.send_string(0x01, "L")
-          logging.info("sent CTRL+L")
-          time.sleep(1)
-          logging.info("sending ENTER (↵)")
-          self.send_string(0, "↵")
-          logging.info("sent ENTER (↵)")
-          time.sleep(30)
+          logging.info("sending CTRL+R")
+          self.send_string(0x01, "R")
+          logging.info("sent CTRL+R")
+          time.sleep(10)
 
     def send_key_state(self):
         """sends a single frame of the current key state to the emulator server"""
